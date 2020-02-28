@@ -26,7 +26,6 @@ func newPetID() int64 {
 	return atomic.AddInt64(&lastID, 1)
 }
 
-
 func UpdatePet(w http.ResponseWriter, r *http.Request) {
 	var newPet models.Pet
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -45,7 +44,7 @@ func UpdatePet(w http.ResponseWriter, r *http.Request) {
 
 	if newPet.Id == 0 {
 		newPet.Id = lastID
-	}else {
+	} else {
 		_, exists := pets[newPet.Id]
 		if !exists {
 			w.WriteHeader(404)
@@ -54,7 +53,7 @@ func UpdatePet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if newPet.Name == ""|| len(newPet.PhotoUrls) == 0{
+	if newPet.Name == "" || len(newPet.PhotoUrls) == 0 {
 		w.WriteHeader(405)
 		fmt.Fprintf(w, "Validation exception")
 		return
@@ -81,14 +80,14 @@ func AddPet(w http.ResponseWriter, r *http.Request) {
 
 	json.Unmarshal(reqBody, &newPet)
 
-	if newPet.Name == ""|| len(newPet.PhotoUrls) == 0{
+	if newPet.Name == "" || len(newPet.PhotoUrls) == 0 {
 		w.WriteHeader(405)
 		fmt.Fprintf(w, "Invalid input\n")
 		return
 	}
 
 	newID := newPetID()
-	newPet.Id= newID
+	newPet.Id = newID
 	pets[newID] = &newPet
 
 	w.WriteHeader(http.StatusOK)
@@ -117,7 +116,7 @@ func GetPetById(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func UpdatePetWithForm (w http.ResponseWriter, r *http.Request) {
+func UpdatePetWithForm(w http.ResponseWriter, r *http.Request) {
 	petId := mux.Vars(r)["petId"]
 
 	id, err := strconv.ParseInt(petId, 10, 64)
@@ -167,7 +166,7 @@ func DeletePet(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Pet not found\n")
 		return
 	}
-	delete(pets,id)
+	delete(pets, id)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -188,7 +187,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer file.Close()
-	path := "./"+ header.Filename
+	path := "./" + header.Filename
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		fmt.Println(err)
@@ -197,11 +196,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 	io.Copy(f, file)
 
-
 	var apiResponse models.ApiResponse
 	apiResponse.Code = 200
 	apiResponse.Type = ""
-	apiResponse.Message = "additionalMetadata: " + r.FormValue("additionalMetadata") +"\n"+ "File uploaded to " + path + "," + strconv.FormatInt(header.Size,10) + " bytes"
+	apiResponse.Message = "additionalMetadata: " + r.FormValue("additionalMetadata") + "\n" + "File uploaded to " + path + "," + strconv.FormatInt(header.Size, 10) + " bytes"
 
 	_, exists := pets[id]
 	if !exists {
@@ -209,7 +207,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Pet not found\n")
 		return
 	}
-	pets[id].PhotoUrls = append(pets[id].PhotoUrls,path)
+	pets[id].PhotoUrls = append(pets[id].PhotoUrls, path)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(apiResponse)
@@ -217,7 +215,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 //Deprecated
-func FindPetsByTags (w http.ResponseWriter, r *http.Request) {
+func FindPetsByTags(w http.ResponseWriter, r *http.Request) {
 	tags := r.URL.Query()["tags"]
 	tags = removeDuplicates(tags)
 	fmt.Println(tags)
@@ -228,12 +226,18 @@ func FindPetsByTags (w http.ResponseWriter, r *http.Request) {
 	}
 	var result []*models.Pet
 	for _, pet := range pets {
-		for _, tag := range pet.Tags{
-			if tagsFilter[tag.Name] ==true {
+		for _, tag := range pet.Tags {
+			if tagsFilter[tag.Name] == true {
 				result = append(result, pet)
 				continue
 			}
 		}
+	}
+
+	if len(result) == 0 {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "Invalid tag value\n")
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -241,9 +245,8 @@ func FindPetsByTags (w http.ResponseWriter, r *http.Request) {
 
 }
 
-
-func FindPetsByStatus (w http.ResponseWriter, r *http.Request) {
-	statusCode := map[string]bool{"available": true, "pending": true, "sold":true}
+func FindPetsByStatus(w http.ResponseWriter, r *http.Request) {
+	statusCode := map[string]bool{"available": true, "pending": true, "sold": true}
 	status := r.URL.Query()["status"]
 
 	//TODO: O(2n) could be refactored to O(1n)
