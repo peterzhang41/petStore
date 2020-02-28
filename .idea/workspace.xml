@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d24570fb-edaa-4864-bd32-97b9161d34a2" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go Application" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" path="/usr/local/go" />
+  <component name="ProjectId" id="1YPNps9HPM56UpC2Gf76UZ89vb7" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go Application" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Module.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/test" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/db" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/models" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="petstore" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <go_parameters value="-i" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/" />
+      <package value="petstore" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="petstore" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <go_parameters value="-i" />
+      <framework value="gotest" />
+      <kind value="DIRECTORY" />
+      <package value="petstore" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="138" y="-41" key="#GOPATH" timestamp="1582840488572">
+      <screen x="0" y="0" width="1080" height="720" />
+    </state>
+    <state x="138" y="-41" key="#GOPATH/0.0.1080.720@0.0.1080.720" timestamp="1582840488572" />
+    <state x="235" y="78" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582841907842">
+      <screen x="0" y="0" width="1080" height="720" />
+    </state>
+    <state x="235" y="78" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1080.720@0.0.1080.720" timestamp="1582841907842" />
+    <state x="321" y="-10" key="FileChooserDialogImpl" timestamp="1582843408291">
+      <screen x="0" y="0" width="1080" height="720" />
+    </state>
+    <state x="321" y="-10" key="FileChooserDialogImpl/0.0.1080.720@0.0.1080.720" timestamp="1582843408291" />
+    <state x="206" y="75" width="668" height="530" key="find.popup" timestamp="1582859300155">
+      <screen x="0" y="0" width="1080" height="720" />
+    </state>
+    <state x="206" y="75" width="668" height="530" key="find.popup/0.0.1080.720@0.0.1080.720" timestamp="1582859300155" />
+    <state x="245" y="-39" width="672" height="676" key="search.everywhere.popup" timestamp="1582871262890">
+      <screen x="50" y="0" width="1030" height="720" />
+    </state>
+    <state x="204" y="-39" width="672" height="676" key="search.everywhere.popup/0.0.1080.720@0.0.1080.720" timestamp="1582855328312" />
+    <state x="245" y="-39" width="672" height="676" key="search.everywhere.popup/50.0.1030.720@50.0.1030.720" timestamp="1582871262890" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/main.go</url>
+          <line>20</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
