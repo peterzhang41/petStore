@@ -14,7 +14,7 @@ How to run
 ```go run ./main.go```
 
 Notice
--  /pet endpoint is fully operational, any others are not coded
+-  /pet endpoint is fully operational, other operations are not coded
 -  Due to time limit, data is stored in memory (a hash map)
 -  A sql installation file in the db folder
 -  Uploaded files will be in ./uploadedFiles folder
