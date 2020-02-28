@@ -11,10 +11,10 @@ curl -X GET "http://127.0.0.1:8080/v2/pet/1" -H "accept: application/json"
 curl -X POST "http://127.0.0.1:8080/v2/pet/1" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "name=4&status=6"
 
 #DeletePet
-curl -X DELETE "http://127.0.0.1:8080/v2/pet/1" -H "accept: application/json"
+curl -X DELETE "http://127.0.0.1:8080/v2/pet/2" -H "accept: application/json"
 
 #UploadImage
-curl -X POST "http://127.0.0.1:8080/v2/pet/1/uploadImage" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "additionalMetadata=pdf" -F "file=@upload_test_file.log;type=text/x-log"
+curl -X POST "http://127.0.0.1:8080/v2/pet/3/uploadImage" -H "accept: application/json" -H "Content-Type: multipart/form-data" -F "additionalMetadata=pdf" -F "file=@upload_test_file.log;type=text/x-log"
 
 #FindByStatus
 curl -X GET "http://127.0.0.1:8080/v2/pet/findByStatus?status=available&status=pending&status=sold" -H "accept: application/json"

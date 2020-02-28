@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	op.MockData()
 	router := mux.NewRouter().StrictSlash(true)
 	s := router.PathPrefix("/v2").Subrouter()
 	s.HandleFunc("/pet/findByTags", op.FindPetsByTags).Queries("tags", "{tags}")

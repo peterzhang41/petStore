@@ -20,6 +20,14 @@ var pets = make(map[int64]*models.Pet)
 var lastID int64
 var petsLock = &sync.Mutex{}
 
+// Mock Data
+func MockData() {
+	pets[1] = &models.Pet{Id: 1, Name: "test1", Status: "available"}
+	pets[2] = &models.Pet{Id: 2, Name: "test2", Status: "pending"}
+	pets[3] = &models.Pet{Id: 3, Name: "test3", Status: "sold"}
+	lastID = 3
+}
+
 // TODO: Database construction and CURD implementation. The init.sql file has been written in the db folder
 
 func newPetID() int64 {
