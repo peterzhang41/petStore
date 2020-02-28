@@ -9,9 +9,9 @@ A restful API microservice written in GO
 
 ## How to run
 
-```go get ./...```
+```go get github.com/peterzhang41/petStore```
 
-```go run ./main.go```
+```go run ~/go/src/github.com/peterzhang41/petStore```
 
 ## Notice
 -  /pet endpoint is fully operational, other operations are not coded
