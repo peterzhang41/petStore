@@ -4,297 +4,180 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
+	"github.com/peterzhang41/petStore/models"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
-	"sync"
-	"sync/atomic"
-
-	"github.com/peterzhang41/petStore/models"
 )
 
-// For Testing Only
-var pets = make(map[int64]*models.Pet)
-var lastID int64
-var petsLock = &sync.Mutex{}
-
-// Mock Data
-func MockData() {
-	pets[1] = &models.Pet{Id: 1, Name: "test1", Status: "available"}
-	pets[2] = &models.Pet{Id: 2, Name: "test2", Status: "pending"}
-	pets[3] = &models.Pet{Id: 3, Name: "test3", Status: "sold"}
-	lastID = 3
-}
-
-// TODO: Database construction and CURD implementation. The init.sql file has been written in the db folder
-
-func newPetID() int64 {
-	return atomic.AddInt64(&lastID, 1)
-}
-
 func UpdatePet(w http.ResponseWriter, r *http.Request) {
-	var newPet models.Pet
-	reqBody, err := ioutil.ReadAll(r.Body)
+	newPet, err := readBodyAndUnmarshalPet(r)
 	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Invalid ID supplied")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid ID supplied\n", 400)
 		return
 	}
 
-	err = json.Unmarshal(reqBody, &newPet)
-	if err != nil {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Validation exception")
+	pet, appErr := models.UpdatePet(newPet)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
 
-	if newPet.Id == 0 {
-		newPet.Id = lastID
-	} else {
-		_, exists := pets[newPet.Id]
-		if !exists {
-			w.WriteHeader(404)
-			fmt.Fprintf(w, "Pet not found")
-			return
-		}
-	}
-
-	if newPet.Name == "" || len(newPet.PhotoUrls) == 0 {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Validation exception")
-		return
-	}
-
-	petsLock.Lock()
-	defer petsLock.Unlock()
-
-	pets[newPet.Id] = &newPet
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(pets[newPet.Id])
-
+	respondWithJSON(w, 200, pet)
 }
 
 func AddPet(w http.ResponseWriter, r *http.Request) {
-	var newPet models.Pet
-	reqBody, err := ioutil.ReadAll(r.Body)
+	newPet, err := readBodyAndUnmarshalPet(r)
 	if err != nil {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Invalid input\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input\n", 405)
 		return
 	}
 
-	json.Unmarshal(reqBody, &newPet)
-
-	if newPet.Name == "" || len(newPet.PhotoUrls) == 0 {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Invalid input\n")
+	pet, appErr := models.AddPet(newPet)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
-
-	newID := newPetID()
-	newPet.Id = newID
-	pets[newID] = &newPet
-
-	w.WriteHeader(http.StatusOK)
-
-	json.NewEncoder(w).Encode(newPet)
+	respondWithJSON(w, 200, pet)
 }
 
 func GetPetById(w http.ResponseWriter, r *http.Request) {
-	petId := mux.Vars(r)["petId"]
-	id, err := strconv.ParseInt(petId, 10, 64)
+	id, err := readPetIdFromRequest(r)
 	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Invalid ID supplied\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid ID supplied\n", 400)
 		return
 	}
 
-	_, exists := pets[id]
-	if !exists {
-		w.WriteHeader(404)
-		fmt.Fprintf(w, "Pet not found\n")
+	pet, appErr := models.GetPetById(id)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(pets[id])
-
+	respondWithJSON(w, 200, pet)
 }
 
 func UpdatePetWithForm(w http.ResponseWriter, r *http.Request) {
-	petId := mux.Vars(r)["petId"]
-
-	id, err := strconv.ParseInt(petId, 10, 64)
+	id, err := readPetIdFromRequest(r)
 	if err != nil {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Invalid input\n")
-		return
-	}
-	_, exists := pets[id]
-	if !exists {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Invalid input\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input\n", 405)
 		return
 	}
 
 	err = r.ParseForm()
 	if err != nil {
-		w.WriteHeader(405)
-		fmt.Fprintf(w, "Invalid input\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input\n", 405)
 		return
 	}
+	name := r.FormValue("name")
+	status := r.FormValue("status")
 
-	pets[id].Name = r.FormValue("name")
-	pets[id].Status = r.FormValue("status")
-	w.WriteHeader(http.StatusOK)
+	appErr := models.UpdatePetWithForm(id, name, status)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
+		return
+	}
+	respondWithJSON(w, 200, "")
 }
 
 func DeletePet(w http.ResponseWriter, r *http.Request) {
 	apiKey := r.Header.Get("api_key")
-	//TODO: validation required in prod
+	//TODO: validation required
 	fmt.Println("api_key: ", apiKey)
 
-	petId := mux.Vars(r)["petId"]
-
-	id, err := strconv.ParseInt(petId, 10, 64)
+	id, err := readPetIdFromRequest(r)
 	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Invalid input supplied\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input supplied\n", 400)
 		return
 	}
+	appErr := models.DeletePet(id)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
+		return
+	}
+	respondWithJSON(w, 200, nil)
 
-	petsLock.Lock()
-	defer petsLock.Unlock()
-	_, exists := pets[id]
-	if !exists {
-		w.WriteHeader(404)
-		fmt.Fprintf(w, "Pet not found\n")
-		return
-	}
-	delete(pets, id)
-	w.WriteHeader(http.StatusOK)
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
-	petId := mux.Vars(r)["petId"]
-	id, err := strconv.ParseInt(petId, 10, 64)
+	id, err := readPetIdFromRequest(r)
 	if err != nil {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Invalid input supplied\n")
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input supplied\n", 400)
 		return
 	}
 
-	r.ParseMultipartForm(32 << 20)
+	err = r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input supplied\n", 400)
+		return
+	}
+
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
+		http.Error(w, "Invalid input supplied\n", 400)
 		return
 	}
+	metadata := r.FormValue("additionalMetadata")
 
-	defer file.Close()
-	path := "./" + header.Filename
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		fmt.Println(err)
+	apiResponse, appErr := models.UploadFile(id, file, header, metadata)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
-	defer f.Close()
-	io.Copy(f, file)
-
-	var apiResponse models.ApiResponse
-	apiResponse.Code = 200
-	apiResponse.Type = ""
-	apiResponse.Message = "additionalMetadata: " + r.FormValue("additionalMetadata") + "\n" + "File uploaded to " + path + "," + strconv.FormatInt(header.Size, 10) + " bytes"
-
-	_, exists := pets[id]
-	if !exists {
-		w.WriteHeader(404)
-		fmt.Fprintf(w, "Pet not found\n")
-		return
-	}
-	pets[id].PhotoUrls = append(pets[id].PhotoUrls, path)
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(apiResponse)
+	respondWithJSON(w, 200, apiResponse)
 
 }
 
 //Deprecated
 func FindPetsByTags(w http.ResponseWriter, r *http.Request) {
 	tags := r.URL.Query()["tags"]
-	tags = removeDuplicates(tags)
-	fmt.Println(tags)
 
-	tagsFilter := make(map[string]bool)
-	for _, v := range tags {
-		tagsFilter[v] = true
-	}
-	var result []*models.Pet
-	for _, pet := range pets {
-		for _, tag := range pet.Tags {
-			if tagsFilter[tag.Name] == true {
-				result = append(result, pet)
-				continue
-			}
-		}
-	}
-
-	if len(result) == 0 {
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "Invalid tag value\n")
+	result, appErr := models.FindPetsByTags(tags)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
-
+	respondWithJSON(w, 200, result)
 }
 
 func FindPetsByStatus(w http.ResponseWriter, r *http.Request) {
-	statusCode := map[string]bool{"available": true, "pending": true, "sold": true}
 	status := r.URL.Query()["status"]
-
-	//TODO: O(2n) could be refactored to O(1n)
-	status = removeDuplicates(status)
-	for _, v := range status {
-		if statusCode[v] != true {
-			w.WriteHeader(400)
-			fmt.Fprintf(w, "Invalid status value\n")
-			return
-		}
+	result, appErr := models.FindPetsByStatus(status)
+	if appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
+		return
 	}
-	fmt.Println(status)
-
-	var result []*models.Pet
-	for _, v := range pets {
-		if statusCode[v.Status] == true {
-			result = append(result, v)
-		}
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
-
+	respondWithJSON(w, 200, result)
 }
 
-func removeDuplicates(elements []string) []string {
-	// Use map to record duplicates as we find them.
-	encountered := map[string]bool{}
-	var result []string
+func readBodyAndUnmarshalPet(r *http.Request) (*models.Pet, error) {
 
-	for v := range elements {
-		if encountered[elements[v]] == true {
-			// Do not add duplicate.
-		} else {
-			// Record this element as an encountered element.
-			encountered[elements[v]] = true
-			// Append to result slice.
-			result = append(result, elements[v])
-		}
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
 	}
-	// Return the new slice.
-	return result
+	var newPet models.Pet
+	err = json.Unmarshal(reqBody, &newPet)
+	if err != nil {
+		return nil, err
+	}
+
+	return &newPet, nil
+}
+
+func readPetIdFromRequest(r *http.Request) (int64, error) {
+	petId := mux.Vars(r)["petId"]
+	id, err := strconv.ParseInt(petId, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }

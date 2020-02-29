@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/peterzhang41/petStore/models"
 	"log"
 	"net/http"
 
@@ -9,7 +11,8 @@ import (
 )
 
 func main() {
-	op.MockData()
+
+	models.MockData()
 	router := mux.NewRouter().StrictSlash(true)
 	s := router.PathPrefix("/v2").Subrouter()
 	s.HandleFunc("/pet/findByTags", op.FindPetsByTags).Queries("tags", "{tags}")
@@ -21,5 +24,6 @@ func main() {
 	s.HandleFunc("/pet/{petId}", op.DeletePet).Methods("DELETE")
 	s.HandleFunc("/pet/{petId}/uploadImage", op.UploadFile).Methods("POST")
 
+	fmt.Println("server started on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
