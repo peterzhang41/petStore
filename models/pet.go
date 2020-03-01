@@ -46,6 +46,11 @@ func MockData() {
 	lastID = 3
 }
 
+func ClearData() {
+	pets = make(map[int64]*Pet)
+	lastID = 0
+}
+
 // TODO: Database construction and CURD implementation. The init.sql file has been written in the db folder
 
 func UpdatePet(newPet *Pet) (*Pet, *appError) {
@@ -70,7 +75,7 @@ func UpdatePet(newPet *Pet) (*Pet, *appError) {
 
 func AddPet(newPet *Pet) (*Pet, *appError) {
 	if newPet.Name == "" || len(newPet.PhotoUrls) == 0 {
-		return nil, &appError{nil, 405, "Invalid input\n"}
+		return nil, &appError{nil, 405, "Invalid input"}
 	}
 
 	newID := newPetID()
@@ -83,7 +88,7 @@ func AddPet(newPet *Pet) (*Pet, *appError) {
 func GetPetById(id int64) (*Pet, *appError) {
 	_, exists := pets[id]
 	if !exists {
-		return nil, &appError{nil, 404, "Pet not found\n"}
+		return nil, &appError{nil, 404, "Pet not found"}
 	}
 	return pets[id], nil
 }
@@ -103,7 +108,7 @@ func UpdatePetWithForm(id int64, name string, status string) *appError {
 func DeletePet(id int64) *appError {
 	_, exists := pets[id]
 	if !exists {
-		return &appError{nil, 404, "Pet not found\n\n"}
+		return &appError{nil, 404, "Pet not found"}
 	}
 	delete(pets, id)
 	return nil
@@ -112,14 +117,14 @@ func DeletePet(id int64) *appError {
 func UploadFile(id int64, file multipart.File, header *multipart.FileHeader, metadata string) (*ApiResponse, *appError) {
 	_, exists := pets[id]
 	if !exists {
-		return nil, &appError{nil, 400, "Invalid input supplied\n"}
+		return nil, &appError{nil, 404, "Pet not found\n"}
 	}
 
 	defer file.Close()
 	path := "./" + header.Filename
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		return nil, &appError{err, 404, "Pet not found\n\n"}
+		return nil, &appError{err, 400, "Invalid input supplied\n"}
 	}
 	defer f.Close()
 	io.Copy(f, file)
@@ -174,8 +179,13 @@ func FindPetsByStatus(status []string) (result []*Pet, error *appError) {
 	}
 	fmt.Println(status)
 
+	statusFilter := make(map[string]bool)
+	for _, v := range status {
+		statusFilter[v] = true
+	}
+
 	for _, v := range pets {
-		if statusCode[v.Status] == true {
+		if statusFilter[v.Status] == true {
 			result = append(result, v)
 		}
 	}

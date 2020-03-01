@@ -47,7 +47,7 @@ func GetPetById(w http.ResponseWriter, r *http.Request) {
 	id, err := readPetIdFromRequest(r)
 	if err != nil {
 		fmt.Println(err.Error())
-		http.Error(w, "Invalid ID supplied\n", 400)
+		http.Error(w, "Invalid ID supplied", 400)
 		return
 	}
 
@@ -81,18 +81,18 @@ func UpdatePetWithForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, appErr.Message, appErr.Code)
 		return
 	}
-	respondWithJSON(w, 200, "")
+	respondWithJSON(w, 200, nil)
 }
 
 func DeletePet(w http.ResponseWriter, r *http.Request) {
-	apiKey := r.Header.Get("api_key")
+	//apiKey := r.Header.Get("api_key")
 	//TODO: validation required
-	fmt.Println("api_key: ", apiKey)
+	//fmt.Println("api_key: ", apiKey)
 
 	id, err := readPetIdFromRequest(r)
 	if err != nil {
 		fmt.Println(err.Error())
-		http.Error(w, "Invalid input supplied\n", 400)
+		http.Error(w, "Invalid input supplied", 400)
 		return
 	}
 	appErr := models.DeletePet(id)
