@@ -14,20 +14,21 @@ A REST API microservice written in GO
 ```go run ~/go/src/github.com/peterzhang41/petStore```
 
 ## Notice
--  All pet endpoints are fully operational, other operations are not coded
--  Due to time limit, data is stored in memory (a hash map), however a SQL installation file in the DB folder for future use
--  Uploaded files will be in project root folder
--  Some error handling code is a little redundant which could be refactored
--  Curl test cases are not real automation tests. Unit tests could be added
+-  All pet endpoints are fully operational, other operations are not implemented
+-  Due to time limit, data is stored in memory, however a SQL installation file in the DB folder for future use
 -  A Dockerfile could be written and added to make this service self-contained
 -  Models are auto-generated from swagger auto-gen tool
 
 ## TESTING
+Pet endpoint integration tests are written.  
+Results are all passed and 85% statements coverage
 
 ```
-cd test
-./curlTest.sh
-
+go test ./... -cover -v
+```
+curlTest.sh in the test folder is a tool for quick access checking
+```
+test/curlTest.sh
 ```
 
 ## API Requirement
